@@ -1,0 +1,161 @@
+docker images
+docker ps
+docker ps -a
+docker start myalpine
+docker ps
+docker exec -it 5ad5126462c3 /bin/bash (5ad5126462c3 #container id)
+(-i used why, so that your terminal do not be blocked if you forgoted to 
+written just simply hit ctrl+c)
+df -h
+type this, read escape sequence 
+enter 
+Press Ctrl + P then Ctrl + Q 
+docker ps
+docker attach myalpine
+read escape sequence
+enter
+Press Ctrl + P then Ctrl + Q
+mkdir python-docker-app
+cd python-docker-app
+pwd
+
+nano requirements.txt
+flask
+
+nano app.py
+
+from flask import Flask
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return "Hello, Dockerized Python Application!"
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
+
+nano Dockerfile
+
+FROM python:3.9-slim
+
+WORKDIR /app
+
+COPY requirements.txt .
+
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 5000
+
+CMD ["python", "app.py"]
+
+docker images
+docker ps
+docker stop myalpine
+docker rmi alpine
+it will shows error just ignore them.
+docker ps
+docker ps -a
+docker rm my_third_image
+docker ps -a
+docker system prune --all (it is very dangeorus command, if you 100%
+sure about you want to delete all you container images etc. just for this warna 
+you go for docker rmi or docker rm)
+
+y
+
+docker ps
+docker ps -a
+docker images
+ls
+docker build -t python-docker-app .
+docker images
+docker run -d -p 5000:5000 python-docker-app
+docker ps
+go to instance window and click security 
+click on security group
+edit inbounded rule
+add rule 
+range 5000  source 0.0.0000000
+save it then,
+go to your browser and copy your public ip, paste it on
+browser at last :5000 and check what is the output.
+http://54.183.244.81:5000/
+docker exec -it 137c288df0f5 /bin/bash
+df -h
+read escape sequence
+enter
+Press Ctrl + P then Ctrl + Q
+docker ps
+docker stop 137c288df0f5
+docker ps
+ip addr show
+docker run -d -p 5000:5000 python-docker-app
+ip addr show
+docker run -d -p 8080:5000 python-docker-app
+docker ps
+
+go to instance window and click security 
+click on security group
+edit inbounded rule
+add rule 
+range 8080 source 0.0.0000000
+save it then,
+go to your browser and copy your public ip, paste it on
+browser at last :8080 and check what is the output.
+http://54.183.244.81:8080/
+ip addr show
+right click on instance top wher you see EC2 Intance click dublicate
+main intance: docker exec -it bc627edd585 /bin/bash
+dublicate instance: docker exec -it 2758c63d0605 /bin/bash
+
+main intance
+read escape sequence
+enter
+Press Ctrl + P then Ctrl + Q
+
+dubliat instance
+read escape sequence
+enter
+Press Ctrl + P then Ctrl + Q
+
+main intance
+docker run -dit --name conA alpine ash
+dubliat instance
+docker run -dit --name conB alpine ash
+
+main intance
+docker ps
+docker attach 3231c57d847f
+
+dubliat instance
+docker attach 59de47d34d14 
+ip addr show
+ping google.com
+after hitting the above command just type ctrl+c
+
+read escape sequence
+enter
+Press Ctrl + P then Ctrl + Q
+close your dublicate instacne then  go to your main instance.
+
+main intance
+
+read escape sequence
+enter
+Press Ctrl + P then Ctrl + Q
+docker ps
+
+docker stop $(docker ps -q)
+docker ps
+
+
+ALL SET!!!!
+
+
+
+
+
+
