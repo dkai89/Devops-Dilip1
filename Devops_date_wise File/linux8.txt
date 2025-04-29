@@ -1,0 +1,26 @@
+1  pwd
+    2  mkdir arya
+    3  ls
+    4  mkdir demo1 demo2 demo3 demo4
+    5  ls
+    6  mkdir test1,test2,test3
+    7  ls
+    8  mkdir a, b, c
+    9  ls
+   10  mkdir {hi,hello,how,are,you}
+   11  ls
+   12  mkdir {h, how, you}
+   13  ls
+   14  mkdir arun{1..9}
+   15  ls
+   16  mkdir kumar{a..e}
+   17  ls
+   18  mkdir karishma-{1..4}
+   19  ls
+   20  mkdir bhavya-{a..e}
+   21  ls
+   22  mkdir ani-{1..5}{a..e}
+   23  ls
+   24  mkdir abhi-{a..f}{1..7}
+   25  ls
+   26  history

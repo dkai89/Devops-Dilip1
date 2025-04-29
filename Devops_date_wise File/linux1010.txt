@@ -1,0 +1,52 @@
+ 1  #touch echo cat nano
+    2  nano vivek.txt
+    3  cat vivek.txt 
+    4  nano vivek.txt 
+    5  cat vivek.txt 
+    6  nano sahil.txt
+    7  cat sahil.txt 
+    8  nano sahil.txt
+    9  mkdir -p riva.mansi/sahil.rahul.tarun
+   10  ls
+   11  mkdir -p a/b/c/d
+   12  mkdir demo1 demo2 demo3 demo4
+   13  mkdir -p  demo1/red/orange/green/yellow/black/blue
+   14  mkdir -p divya/mansi/riya
+   15  ls
+   16  touch arya.txt
+   17  touch abc.txt bcd.csv cde.html
+   18  ls
+   19  ls -r
+   20  ls -a
+   21  ls -l
+   22  ls -R
+   23  ls -hs
+   24  ls -l
+   25  sudo apt-get install python3
+   26  sudo apt-get install apache2
+   27  sudo apt-get update
+   28  sudo apt-get install python3
+   29  sudo apt-get install apache2
+   30  sudo apt-get install ngnix
+   31  sudo apt-get install nginx
+   32  sudo apt-get install tree
+   33  tree
+   34  #cp mv rm
+   35  tree
+   36  cp vivek.txt demo4
+   37  tree
+   38  cp sahil.txt bcd.csv cde.html demo2
+   39  tree
+   40  cp sahil.txt divya
+   41  tree
+   42  cp divya demo2
+   43  cp -r divya demo2
+   44  tree
+   45* 
+   46  tree
+   47  find -name "green"
+   48  mv vivek.txt divya
+   49  tree
+   50  mv demo4 demo2
+   51  tree
+   52  history

@@ -1,0 +1,1019 @@
+18th Feb
+
+sudo su - 
+PS1="terraform> "
+
+
+then click bucket and create a bucket with create a folder,  make sure it is version enabled.
+
+create three files 
+
+# backend.tf
+
+terraform {
+  required_version = ">= 1.4"
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
+  backend "s3" {
+    bucket         = "mybucketdkm"
+    key            = "test/terraform.tfstate"
+    region         = "ap-southeast-1"
+  }
+}
+
+# Provider Block
+
+provider "aws" {
+  region  = "ap-southeast-1"
+  profile = "default"
+}
+
+# ec2-instance.tf
+
+# Resource Block
+resource "aws_instance" "ec2demo" {
+  ami           = "ami-065a492fef70f84b1" # Amazon Linux in us-east-1, update as per your region
+  instance_type = "t2.micro"
+}
+
+
+
+after that 
+terraform init
+terraform plan 
+terraform apply
+enter a value: yes
+
+terraform destroy --auto-approve
+
+
+
+pwd
+ls -lrt
+rm -rf ec2-instance.tf
+ls -lrt
+ls -lart
+rm -rf .terraform .terraform.lock.hcl
+ls -lart
+
+create VPC
+
+# outputs.tf
+
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = aws_vpc.main.id
+}
+
+output "public_subnet_id" {
+  description = "The ID of the public subnet"
+  value       = aws_subnet.public.id
+}
+
+output "private_subnet_id" {
+  description = "The ID of the private subnet"
+  value       = aws_subnet.private.id
+}
+
+output "instance_id" {
+  description = "The ID of the EC2 instance"
+  value       = aws_instance.web.id
+}
+
+output "public_ip" {
+  description = "The public IP of the EC2 instance"
+  value       = aws_instance.web.public_ip
+}
+
+output "public_dns" {
+  description = "The public DNS of the EC2 instance"
+  value       = aws_instance.web.public_dns
+}
+
+
+
+# variables.tf
+
+variable "vpc_cidr" {
+  description = "The CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidr" {
+  description = "The CIDR block for the public subnet"
+  type        = string
+  default     = "10.0.1.0/24"
+}
+
+variable "private_subnet_cidr" {
+  description = "The CIDR block for the private subnet"
+  type        = string
+  default     = "10.0.2.0/24"
+}
+
+variable "instance_type" {
+  description = "The type of instance to use"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "ami_id" {
+  description = "The AMI ID to use for the instance"
+  type        = string
+  default     = "ami-065a492fef70f84b1"  # Update this as per your region
+}
+
+variable "key_name" {
+  description = "The key name to use for the instance"
+  type        = string
+  default     = "myterraform"  # Ensure this key pair exists in your AWS account
+}
+
+
+# vpc.tf
+
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
+  tags = {
+    Name = "main-vpc"
+  }
+}
+
+
+# subnet.tf
+
+resource "aws_subnet" "public" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public_subnet_cidr
+  map_public_ip_on_launch = true
+  availability_zone = "ap-southeast-1a"
+  tags = {
+    Name = "public-subnet"
+  }
+}
+
+resource "aws_subnet" "private" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidr
+  availability_zone = "ap-southeast-1b"
+  tags = {
+    Name = "private-subnet"
+  }
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "main-gateway"
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
+
+
+#ec2.instance
+
+resource "aws_instance" "web" {
+  ami                         = var.ami_id
+  instance_type               = var.instance_type
+  subnet_id                   = aws_subnet.public.id
+  associate_public_ip_address = true
+  key_name                    = var.key_name
+
+  tags = {
+    Name = "web-instance"
+  }
+}
+
+terraform destroy --auto-approve
+
+ls -lart
+rm -rf .terraform .terraform.lock.hcl subnet.tf output.tf variables.tf vpc.tf ec2.tf
+ls -lart
+
+
+Task 2 
+
+vi vpc.tf
+
+# vpc.tf
+
+resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr_block
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+
+  tags = {
+    Name = "main-vpc"
+  }
+}
+
+resource "aws_subnet" "public" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public_subnet_cidr
+  map_public_ip_on_launch = true
+  availability_zone = "ap-southeast-1a"
+  tags = {
+    Name = "public-subnet"
+  }
+}
+
+resource "aws_subnet" "private" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidr
+  availability_zone = "ap-southeast-1b"
+  tags = {
+    Name = "private-subnet"
+  }
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "main-gateway"
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
+
+vi security-group.tf
+
+# security-group.tf
+
+resource "aws_security_group" "web_sg" {
+  vpc_id = aws_vpc.main.id
+  description = "Allow HTTP and SSH traffic"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "web-sg"
+  }
+}
+
+
+vi ec2-instance.tf
+
+# ec2-instance.tf
+
+resource "aws_instance" "web" {
+  ami           = "ami-065a492fef70f84b1"
+  instance_type = "t2.micro"
+  subnet_id     = aws_subnet.public.id
+  key_name      = var.key_name
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              yum update -y
+              yum install -y httpd
+              systemctl start httpd
+              systemctl enable httpd
+              echo "<html><h1>Hello from Terraform</h1></html>" > /var/www/html/index.html
+              EOF
+
+  tags = {
+    Name = "web-server"
+  }
+}
+
+
+
+vi output.tf
+
+output "instance_id" {
+  description = "The ID of the EC2 instance"
+  value       = aws_instance.web.id
+}
+
+output "public_ip" {
+  description = "The public IP of the EC2 instance"
+  value       = aws_instance.web.public_ip
+}
+
+output "public_dns" {
+  description = "The public DNS of the EC2 instance"
+  value       = aws_instance.web.public_dns
+}
+
+
+vi variables.tf
+
+variable "vpc_cidr_block" {
+  description = "CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidr" {
+  description = "CIDR block for the public subnet"
+  type        = string
+  default     = "10.0.1.0/24"
+}
+
+variable "private_subnet_cidr" {
+  description = "CIDR block for the private subnet"
+  type        = string
+  default     = "10.0.2.0/24"
+}
+
+variable "key_name" {
+  description = "EC2 Key Pair name"
+  type        = string
+}
+
+
+ll
+terraform init
+terraform plan
+terraform> terraform plan
+var.key_name
+  EC2 Key Pair name
+
+  Enter a value: myterraform
+
+terraform apply
+var.key_name
+  EC2 Key Pair name
+
+  Enter a value: myterraform
+enter a value: yes
+
+
+apne new web server ec2 instance per jaye aur check 
+http://54.254.246.247/
+the page shows aur not
+if not ?
+go to your new instace and connect it 
+and check sudo systemctl status apache2
+if the output is Unit apache2.service could not be found.
+then follow the blow steps
+
+sudo yum update -y
+sudo yum install httpd -y
+
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+check on your browser http://54.254.246.247/
+
+
+
+terraform destroy --auto-approve
+
+#terraform> terraform destroy --auto-approve
+var.key_name
+  EC2 Key Pair name
+
+  Enter a value: myterraform
+
+rm -rf .terraform .terraform.lock.hcl security-group.tf output.tf variables.tf vpc.tf ec2-instance.
+tf
+
+ls 
+ls -lart
+
+
+
+task 3
+
+vi ec2-instance.tf
+
+# ec2-instance.tf
+
+resource "aws_instance" "web" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  subnet_id     = aws_subnet.public.id
+  key_name      = var.key_name
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              yum update -y
+              yum install -y httpd
+              systemctl start httpd
+              systemctl enable httpd
+              echo "<html><h1>Hello from Terraform</h1></html>" > /var/www/html/index.html
+              EOF
+
+  tags = {
+    Name = "web-server"
+  }
+}
+
+
+vi outputs.tf
+
+# outputs.tf
+
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = aws_vpc.main.id
+}
+
+output "public_subnet_id" {
+  description = "The ID of the public subnet"
+  value       = aws_subnet.public.id
+}
+
+output "private_subnet_id" {
+  description = "The ID of the private subnet"
+  value       = aws_subnet.private.id
+}
+
+output "instance_id" {
+  description = "The ID of the EC2 instance"
+  value       = aws_instance.web.id
+}
+
+output "public_ip" {
+  description = "The public IP of the EC2 instance"
+  value       = aws_instance.web.public_ip
+}
+
+output "public_dns" {
+  description = "The public DNS of the EC2 instance"
+  value       = aws_instance.web.public_dns
+}
+
+vi security-group.tf
+
+# security-group.tf
+
+resource "aws_security_group" "web_sg" {
+  vpc_id = aws_vpc.main.id
+  description = "Allow HTTP and SSH traffic"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "web-sg"
+  }
+}
+
+vi subnet.tf
+
+# subnet.tf
+
+resource "aws_subnet" "public" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public_subnet_cidr
+  map_public_ip_on_launch = true
+  availability_zone = "ap-southeast-1a"
+  tags = {
+    Name = "public-subnet"
+  }
+}
+
+resource "aws_subnet" "private" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_subnet_cidr
+  availability_zone = "ap-southeast-1b"
+  tags = {
+    Name = "private-subnet"
+  }
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "main-gateway"
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = "public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
+
+vi variables.tf
+
+# variables.tf
+
+variable "vpc_cidr" {
+  description = "The CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "public_subnet_cidr" {
+  description = "The CIDR block for the public subnet"
+  type        = string
+  default     = "10.0.1.0/24"
+}
+
+variable "private_subnet_cidr" {
+  description = "The CIDR block for the private subnet"
+  type        = string
+  default     = "10.0.2.0/24"
+}
+
+variable "instance_type" {
+  description = "The type of instance to use"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "ami_id" {
+  description = "The AMI ID to use for the instance"
+  type        = string
+  default     = "ami-065a492fef70f84b1"  # Update this as per your region
+}
+
+variable "key_name" {
+  description = "The key name to use for the instance"
+  type        = string
+  default     = "myterraform"  # Ensure this key pair exists in your AWS account
+}
+
+
+vi vpc.tf
+
+# vpc.tf
+
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
+  tags = {
+    Name = "main-vpc"
+  }
+}
+
+
+terraform init
+terraform plan 
+terraform apply
+
+
+47.128.72.215/
+
+
+terraform destroy --auto-approve
+
+
+-------------------------------------------------------------------------------------------------------
+
+
+19th Feb
+all are 1 command select all paste it on your instance.
+
+mkdir -p terraform_project/modules/vpc terraform_project/modules/subnet terraform_project/modules/ec2
+
+touch terraform_project/main.tf terraform_project/provider.tf
+
+touch terraform_project/modules/vpc/main.tf terraform_project/modules/vpc/variables.tf terraform_project/modules/vpc/outputs.tf
+
+touch terraform_project/modules/subnet/main.tf terraform_project/modules/subnet/variables.tf terraform_project/modules/subnet/outputs.tf
+
+touch terraform_project/modules/ec2/main.tf terraform_project/modules/ec2/variables.tf terraform_project/modules/ec2/outputs.tf
+
+ls
+cd terraform_project
+ls
+cd modules/
+ls
+cd vpc
+ls
+cd ../ec2/
+ls
+cd ../subnet/
+ls
+pwd
+cd ../..
+ls
+
+
+vi provider.tf
+# provider.tf
+
+provider "aws" {
+  region  = "ap-southeast-1"
+  profile = "default"
+}
+
+ls
+cd modules
+ls
+cd vpc/
+ls
+vi main.tf
+# modules/vpc/main.tf
+
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
+  tags = {
+    Name = var.vpc_name
+  }
+}
+
+ls
+
+
+vi variables.tf
+
+# modules/vpc/variables.tf
+
+variable "vpc_cidr" {
+  description = "The CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "vpc_name" {
+  description = "The name of the VPC"
+  type        = string
+  default     = "main-vpc"
+}
+
+ls
+
+vi outputs.tf
+
+# modules/vpc/outputs.tf
+
+output "vpc_id" {
+  description = "The ID of the VPC"
+  value       = aws_vpc.main.id
+}
+
+pwd
+cd ..
+ls
+cd subnet
+ls
+vi variables.tf
+
+# modules/subnet/variables.tf
+
+variable "vpc_id" {
+  description = "The ID of the VPC"
+  type        = string
+}
+
+variable "public_subnet_cidr" {
+  description = "The CIDR block for the public subnet"
+  type        = string
+  default     = "10.0.1.0/24"
+}
+
+variable "private_subnet_cidr" {
+  description = "The CIDR block for the private subnet"
+  type        = string
+  default     = "10.0.2.0/24"
+}
+
+variable "availability_zone" {
+  description = "The availability zone for the subnets"
+  type        = string
+  default     = "ap-southeast-1a"
+}
+
+variable "public_subnet_name" {
+  description = "The name of the public subnet"
+  type        = string
+  default     = "public-subnet"
+}
+
+variable "private_subnet_name" {
+  description = "The name of the private subnet"
+  type        = string
+  default     = "private-subnet"
+}
+
+variable "internet_gateway_name" {
+  description = "The name of the internet gateway"
+  type        = string
+  default     = "main-gateway"
+}
+
+variable "public_route_table_name" {
+  description = "The name of the public route table"
+  type        = string
+  default     = "public-route-table"
+}
+
+
+vi main.tf
+
+# modules/subnet/main.tf
+
+resource "aws_subnet" "public" {
+  vpc_id            = var.vpc_id
+  cidr_block        = var.public_subnet_cidr
+  map_public_ip_on_launch = true
+  availability_zone = var.availability_zone
+  tags = {
+    Name = var.public_subnet_name
+  }
+}
+
+resource "aws_subnet" "private" {
+  vpc_id            = var.vpc_id
+  cidr_block        = var.private_subnet_cidr
+  availability_zone = var.availability_zone
+  tags = {
+    Name = var.private_subnet_name
+  }
+}
+
+resource "aws_internet_gateway" "gw" {
+  vpc_id = var.vpc_id
+  tags = {
+    Name = var.internet_gateway_name
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = var.vpc_id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.gw.id
+  }
+
+  tags = {
+    Name = var.public_route_table_name
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
+}
+
+
+vi outputs.tf
+
+# modules/subnet/outputs.tf
+
+output "public_subnet_id" {
+  description = "The ID of the public subnet"
+  value       = aws_subnet.public.id
+}
+
+output "private_subnet_id" {
+  description = "The ID of the private subnet"
+  value       = aws_subnet.private.id
+}
+
+
+cd ..
+ls
+cd ec2
+ls
+
+vi main.tf
+
+# modules/ec2/main.tf
+
+resource "aws_instance" "web" {
+  ami           = var.ami_id
+  instance_type = var.instance_type
+  subnet_id     = var.subnet_id
+  key_name      = var.key_name
+  vpc_security_group_ids = [var.security_group_id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              yum update -y
+              yum install -y httpd
+              systemctl start httpd
+              systemctl enable httpd
+              echo "<html><h1>Hello from Terraform</h1></html>" > /var/www/html/index.html
+              EOF
+
+  tags = {
+    Name = "web-server"
+  }
+}
+
+
+vi variables.tf
+
+# modules/ec2/variables.tf
+
+variable "ami_id" {
+  description = "The AMI ID to use for the instance"
+  type        = string
+  default     = "ami-065a492fef70f84b1"  # Update this as per your region
+}
+
+variable "instance_type" {
+  description = "The type of instance to use"
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "subnet_id" {
+  description = "The ID of the subnet to launch the instance in"
+  type        = string
+}
+
+variable "key_name" {
+  description = "The key name to use for the instance"
+  type        = string
+  default     = "myterraform"  # Ensure this key pair exists in your AWS account
+}
+
+variable "security_group_id" {
+  description = "The ID of the security group to associate with the instance"
+  type        = string
+}
+
+vi outputs.tf
+
+# modules/ec2/outputs.tf
+
+output "instance_id" {
+  description = "The ID of the EC2 instance"
+  value       = aws_instance.web.id
+}
+
+output "public_ip" {
+  description = "The public IP of the EC2 instance"
+  value       = aws_instance.web.public_ip
+}
+
+output "public_dns" {
+  description = "The public DNS of the EC2 instance"
+  value       = aws_instance.web.public_dns
+}
+
+pwd
+cd ../..
+pwd
+ls
+vi main.tf
+
+# main.tf
+
+module "vpc" {
+  source = "./modules/vpc"
+
+  vpc_cidr = "10.0.0.0/16"
+  vpc_name = "main-vpc"
+}
+
+module "subnet" {
+  source = "./modules/subnet"
+
+  vpc_id                 = module.vpc.vpc_id
+  public_subnet_cidr     = "10.0.1.0/24"
+  private_subnet_cidr    = "10.0.2.0/24"
+  availability_zone      = "ap-southeast-1a"
+  public_subnet_name     = "public-subnet"
+  private_subnet_name    = "private-subnet"
+  internet_gateway_name  = "main-gateway"
+  public_route_table_name = "public-route-table"
+}
+
+resource "aws_security_group" "web_sg" {
+  vpc_id      = module.vpc.vpc_id
+  description = "Allow HTTP and SSH traffic"
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "web-sg"
+  }
+}
+
+module "ec2" {
+  source = "./modules/ec2"
+
+  ami_id            = "ami-065a492fef70f84b1"  # Update this as per your region
+  instance_type     = "t2.micro"
+  subnet_id         = module.subnet.public_subnet_id
+  key_name          = "myterraform"  # Ensure this key pair exists in your AWS account
+  security_group_id = aws_security_group.web_sg.id
+}
+
+terraform init
+pwd
+cd ..
+yum install tree -y
+tree terraform_project
+cd terraform_project
+ls
+tree modulues
+pwd
+ls
+cd modules
+ls
+tree ec2
+tree subnet
+tree vpc
+pwd
+cd ..
+ls -lart
+terraform plan
+terraform apply --auto-approve
+terraform destroy --auto-approve
+

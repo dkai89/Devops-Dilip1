@@ -1,0 +1,42 @@
+sudo apt update
+sudo apt install docker.io -y
+sudo systemctl enable docker
+sudo systemctl start docker
+docker --version
+sudo usermod -aG docker $USER
+sudo reboot
+docker ps
+docker system prune --all
+
+now go to your jenkins portal 
+and click on new item 
+name :-mydockerPyApp
+choose Pipeline 
+click ok
+
+Description: This is my python app
+
+Pipeline
+Define your Pipeline using Groovy directly or pull it from source control.
+Definition
+
+choose Pipeline script from SCM
+
+SCM
+git
+
+Repository URL
+https://github.com/dkai89/JenkinsDemo.git
+
+Branches to build
+?
+Branch Specifier (blank for 'any')
+?
+*/main
+
+
+click on save
+
+
+
+

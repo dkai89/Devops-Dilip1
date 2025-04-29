@@ -1,0 +1,170 @@
+firstly create an instance with aws linux os system, In instance Configure storage Gib Standard
+
+sudo su -
+PS1="Terraform $ "
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
+sudo yum -y install terraform
+terraform --version
+aws --version
+
+Go to your search bar and type IAM
+then click users 
+then click on create user 
+
+1.Specify user details
+User details
+User name :-myterraform
+Do not check that (Provide user access to the AWS Management Console - optional)
+click next
+
+2.Set permissions
+Add user to an existing group or create a new one. Using groups is a best-practice way to manage user's permissions by job functions. Learn more 
+
+Permissions options
+
+choose this Attach policies directly
+
+select the AdministratorAccess
+click next 
+then click create user
+
+after create click on that user and then go to Security Credentials, go down click on create Access key 
+choose this Command Line Interface (CLI)
+go down and check the box (I understand the above recommendation and want to proceed to create an access key.)
+click on next 
+click on Create access key
+
+now your access key and secret key will be showing 
+if you  want to save on your system then click Download .csv file
+
+this keys used further process ......
+
+
+
+aws configure
+
+after above command fill the all detail according to you 
+
+AWS Access Key ID [None]: AKIASVQKHKOSJX4KYJ53 (#from csv file )
+AWS Secret Access Key [None]: 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 (#from csv file )
+Default region name [None]: ap-southeast-1 (as you wish)
+Default output format [None]: text (as it is )
+
+cd .aws
+ls
+cat config
+mkdir my_terraform_codes
+cd my_terraform_codes
+pwd
+
+
+vi  terraform-provider.tf   (Ragion update according to you )
+
+# Terraform Settings Block
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      #version = "~> 3.21" # Optional but recommended in production
+    }
+  }
+}
+
+# Provider Block
+provider "aws" {
+  profile = "default" # AWS Credentials Profile configured on your local desktop terminal  $HOME/.aws/credentials
+  region  = "ap-south-1"
+}
+
+
+ec2-instance.tf  (The Ami id you find when you lauch your instance in OS system section)
+
+# Resource Block
+resource "aws_instance" "ec2demo" {
+  ami           = "ami-065a492fef70f84b1" # Amazon Linux in us-east-1, update as per your region
+  instance_type = "t2.micro"
+}
+
+
+ls -la
+ls -lrt
+terraform init
+ls -lart  (there is two generated)
+cd .terraform
+ls
+cd providers/
+ls
+cd registry.terraform.io/
+ls
+cd hashicorp/
+ls
+cd aws
+ls
+pwd  (you wil see the path:- /root/.aws/my_terraform_codes/.terraform/providers/registry.terraform.io/hashicorp/aws)
+
+terraform validate
+pwd
+cd /root/.aws/my_terraform_codes
+ls
+terraform plan (it will take few mints)
+then you will see the this type of output (Note: You didn't use the -out option to save this plan, so Terraform can't guarantee to take exactly these actions if you run "terraform
+apply" now.) It means you have successfully planed
+
+terraform apply
+Enter a value: yes
+
+after apply now go to your instance when you see all your instances and you will notice that one more instance running and this new instance are
+going to build by terraform.
+
+ls
+output :- terraform.tfstate (additional shows this file have your all info regarding new intance)
+
+
+suppose we change the type of instance manually t2.micro >t2.nano 
+
+we stopped the terraform intance 
+select stopped terraform instance click on Actions
+click on Instance Settings
+click on change instance type 
+t2.micro to t2.nano 
+then click on change 
+
+start the terraform intance 
+
+cat ec2-instance.tf
+terraform plan
+now it will change the type according to your script (~ instance_type                        = "t2.nano" -> "t2.micro")
+ls -lart
+cat terraform.tfstate
+cat terraform.tfstate|grep instance
+terraform apply --auto-approve   
+after this you will see the type has been changed nann>micro.
+
+ls (new backup file will showing)
+
+vi ec2-instance.tf (change the instance_type t2.micro>t2.nano)the updated script is given below:
+
+# Resource Block
+resource "aws_instance" "ec2demo" {
+  ami           = "ami-065a492fef70f84b1" # Amazon Linux in us-east-1, update as per your region
+  instance_type = "t2.nano"
+}
+
+terraform apply --auto-approve
+now you will see your instance will change t2.micro>t2.nano. So the conclusion is when you change anything you need 
+update your script rest all terraform will do automatic.
+
+ls -lrt
+cat terraform.tfstate|grep instance_type
+cat terraform.tfstate.backup |grep instance_type
+
+terraform destroy --auto-approve (this command is used to destroy the terraform)
+
+
+
+all set!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+
+

@@ -1,0 +1,12 @@
+for java 
+168MB msi version download 
+https://adoptium.net/temurin/releases/?os=windows&package=jdk&version=17
+
+for jenkins 
+https://www.jenkins.io/download/#downloading-jenkins
+
+click on windows 
+
+http://localhost:8080 after jenkins install 
+
+

@@ -1,0 +1,9 @@
+docker ps
+git clone https://github.com/dkai89/login-app.git
+ls
+docker run -d -p 3000:3000 dilipdevops1982/login-app
+docker ps
+
+
+
+make the inbound rule 3000

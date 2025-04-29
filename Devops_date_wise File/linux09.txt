@@ -1,0 +1,103 @@
+ 1  mkdir demo1 deo2 demo3 demo4
+    2  mkdir ank-{1..5}
+    3  mkdir abhi-{a..e}
+    4  mkdir ani-{1..5}{a..e}
+    5  ls
+    6  mkdir arya
+    7  ls
+    8  pwd
+    9  cd arya
+   10  pwd
+   11  cd 
+   12  ls
+   13  pwd
+   14  cd arya
+   15  pwd
+   16  mkdir aaa bbb ccc
+   17  ls
+   18  cd aaa
+   19  pwd
+   20  mkdir abc bcd cde
+   21  ls
+   22  cd cde
+   23  mkdir 001 002 003
+   24  cd 003
+   25  mkdir pqr rst uvw
+   26  cd uvw
+   27  mkdir 111 222 333
+   28  cd 222
+   29  pwd
+   30  cd..
+   31  cd ..
+   32  pwd
+   33  cd ..
+   34  pwd
+   35  cd /arya/aaa/cde/003/uvw/222
+   36  cd arya/aaa/cde/003/uvw/222
+   37  cd
+   38  pwd
+   39  cd arya/aaa/cde/003/uvw/222
+   40  pwd
+   41  cd ../../../../
+   42  cd -
+   43  cd /home/ubuntu/arya
+   44  cd -
+   45  cd
+   46  pwd
+   47  cd -
+   48  cd
+   49  pwd
+   50  ls
+   51  pwd
+   52  mkdir demo1/hello
+   53  ls demo1
+   54  mkdir demo3/hi demo1/you
+   55  ls demo3
+   56  ls demo1
+   57  mkdir demo4/{hi,us,we}
+   58  ls demo4
+   59  ls
+   60  mkdir divya/mansi/riya
+   61  mkdir -p divya/mansi/riya
+   62  ls divya/
+   63  ls divya/mansi
+   64  mkdir demo1/blue/black/red/yellow/green/orange
+   65  mkdir -p demo1/blue/black/red/yellow/green/orange
+   66  ls demo1
+   67  ls demo1/blue/
+   68  ls demo1/blue/black/
+   69  ls demo1/blue/black/red/
+   70  ls demo1/blue/black/red/yellow/
+   71  ls demo1/blue/black/red/yellow/green/
+   72  find -name "red"
+   73  find -name "orange"
+   74  find -name "hi"
+   75  cd demo1/blue/black/red/yellow/green/orange
+   76  pwd
+   77  cd
+   78  #touch echo cat nano
+   79  touch neeta.txt
+   80  ls
+   81  touch abc.csv bcd.py cde.html
+   82  ls
+   83  echo hi i am Arya
+   84  echo 'hi i am Arya'
+   85  echo "hi i am Arya"
+   86  echo "hi i am Arya" > krishma.txt
+   87  ls
+   88  cat krishma.txt 
+   89  echo i am the trainer for linux > rohit.txt
+   90  ls
+   91  cat rohit.txt 
+   92  echo i am adding the data > rohit.txt 
+   93  cat rohit.txt 
+   94  echo i made a mistake >> rohit.txt 
+   95  cat rohit.txt 
+   96  echo i am adding 3rd Line >> rohit.txt 
+   97  cat rohit.txt 
+   98  cat > ajay.txt
+   99  cat ajay.txt 
+  100  cat >> ajay.txt 
+  101  cat ajay.txt 
+  102  tac ajay.txt 
+  103  history
