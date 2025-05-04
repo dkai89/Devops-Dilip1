@@ -1,0 +1,181 @@
+make a new instance with amazon ubuntu os system 
+connect it 
+then type 
+sudo su -
+PS1="Slave $"
+docker
+ip addr show
+apt  install docker.io
+apt-get update
+docker --version
+ip addr show (# You will see the new ip is added named docker0)
+docker network ls
+docker inspect bridge
+docker ps 
+docker ps -a
+docker images
+docker run -dit --name ConA alpine ash
+docker run -dit --name ConB alpine ash
+ip addr show
+open new dublicate session of your slave instance 
+sudo su -
+docker ps
+docker attach ConA
+PS1="ConA $"
+ip addr show
+ping google.com
+ctrl +c
+open one more new dublicate session of your slave instance
+sudo su -
+docker attach ConB
+PS1="ConB $"
+ip addr show
+ping google.com
+ctrl +c
+
+go to ConA
+ping 172.17.0.3 ("this ip of your ConB instance")
+ctrl+c
+
+Example:-(ConB):----"6: eth0@if7: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP 
+    link/ether 02:42:ac:11:00:03 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.3/16 brd 172.17.255.255 scope global eth0
+       valid_lft forever preferred_lft forever"
+
+go to ConB
+ping 172.17.0.2 ("this ip of your ConA instance")
+ctrl+c
+
+Example:-(ConA):---- 4: eth0@if5: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1500 qdisc noqueue state UP 
+    link/ether 02:42:ac:11:00:02 brd ff:ff:ff:ff:ff:ff
+    inet 172.17.0.2/16 brd 172.17.255.255 scope global eth0
+       valid_lft forever preferred_lft forever
+
+
+go to ConA 
+ping 8.8.8.8
+ctrl+c
+
+
+close all dublicate sessions
+
+go to your slave instance 
+
+docker stop ConB ConA
+docker system prune --all
+y
+docker ps
+docker ps -a
+docker images
+
+go to main old intance (master)
+docker system prune --all
+docker ps
+docker ps -a
+docker images
+ip addr show
+docker swarm init --advertise-addr 172.31.3.177 (master instace ip see the example )
+copy the output shows like this :- (docker swarm join --token SWMTKN-1-0by8pxymgci61vb9xeah1ugnbojnavzdhpgc98nt32dibjscmk-1psdud0iut76b07adhngdzays 172.31.3.177:2377)
+docker node ls
+example :---2: enX0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 9001 qdisc fq_codel state UP group default qlen 1000
+    link/ether 06:a3:d1:e3:6c:e3 brd ff:ff:ff:ff:ff:ff
+    inet 172.31.3.177/20 metric 100 brd 172.31.15.255 scope global dynamic enX0
+       valid_lft 3401sec preferred_lft 3401sec
+    inet6 fe80::4a3:d1ff:fee3:6ce3/64 scope link 
+       valid_lft forever preferred_lft forever
+
+paste the output of master instance into your slave instance.
+
+Note :- if are getting error kindly follow the below steps to defuge it. 
+
+Step 1: Open Ports in the AWS Security Group
+If you're running this on AWS EC2 (which it appears you are), you need to:
+
+Go to the EC2 Dashboard → Instances → select the manager node (172.31.3.177) master instacne 
+
+In the Description tab, find and click on the Security Group link
+
+In the Inbound Rules tab, click Edit Inbound Rules
+
+Add the following rules:
+
+Type	Protocol	Port Range	Source
+Custom TCP Rule	TCP	2377	     0.0.0.0.0
+Custom TCP Rule	TCP	7946	     0.0.0.0.0
+Custom UDP Rule	UDP	7946	     0.0.0.0.0
+Custom UDP Rule	UDP	4789	     0.0.0.0.0
+
+You can also temporarily allow 0.0.0.0/0 for testing if you're in a secure, internal-only environment, but this is not recommended for production.
+
+
+Go to your slave instance 
+nc -zv 172.31.3.177 2377 (#master instance pvt ip 172.31.3.177)
+docker swarm leave --force
+docker swarm join --token SWMTKN-1-0by8pxymgci61vb9xeah1ugnbojnavzdhpgc98nt32dibjscmk-1psdud0iut76b07adhngdzays 172.31.3.177:2377
+
+go to your master instance 
+and type this docker node ls
+you will see the one more node is added
+docker network ls
+docker network create --driver overlay my-overlay-network
+docker network ls
+docker service create --name my-nginx --replicas 2 --network my-overlay-network nginx
+docker service ps my-nginx
+docker ps
+go to your slave instance
+docker ps
+docker exec -it 5268aa4f99cc bash
+go to your master instance
+docker exec -it a4ad39b58adb bash
+
+exit form both the instance type the blow command
+
+exit 
+
+go to your master instance 
+docker service create --name alpine-servie --replicas 2 --network my-overlay-network alpine sleep 3600 
+docker service ps alpine-servie
+docker ps
+docker exec -it 707f8266818f sh
+go to your slave instance 
+docker exec -it 707f8266818f sh
+ip addr show 
+copy the ip 
+
+example:---->21: eth0@if22: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1450 qdisc noqueue state UP 
+    link/ether 02:42:0a:00:01:08 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.1.8/24 brd 10.0.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+paste on your master instance
+ping 10.0.1.8
+ctrl+c
+copy the ip of you master instance
+
+example :---->17: eth0@if18: <BROADCAST,MULTICAST,UP,LOWER_UP,M-DOWN> mtu 1450 qdisc noqueue state UP 
+    link/ether 02:42:0a:00:01:09 brd ff:ff:ff:ff:ff:ff
+    inet 10.0.1.9/24 brd 10.0.1.255 scope global eth0
+       valid_lft forever preferred_lft forever
+go to slave instance paste them 
+ping 10.0.1.9
+
+read escape sequence
+enter
+Press Ctrl + P then Ctrl + Q
+
+go to your master instance 
+read escape sequence
+enter
+Press Ctrl + P then Ctrl + Q
+docker network ls
+docker inspect my-overlay-network
+docker inspect bridge
+
+All Set!!!!
+
+
+
+
+
+
+
+
