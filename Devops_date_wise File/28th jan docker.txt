@@ -1,0 +1,110 @@
+sudo su -
+docker ps -a
+docker system prune --all
+y
+docker ps -a
+exit
+wget https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo cp minikube-linux-amd64 /usr/local/bin/minikube
+sudo chmod +x /usr/local/bin/minikube
+curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+chmod +x kubectl
+sudo mv kubectl /usr/local/bin/
+sudo usermod -aG docker $USER && newgrp docker
+minikube start --driver=docker
+
+(ubuntu@ip-172-31-3-177:~$ minikube start --driver=docker
+* minikube v1.35.0 on Ubuntu 24.04 (xen/amd64)
+* Using the docker driver based on user configuration
+
+X Exiting due to RSRC_INSUFFICIENT_CORES: Docker has less than 2 CPUs available, but Kubernetes requires at least 2 to be available)
+
+
+
+if you are getting above type of error then follow the below steps
+
+
+Right-click or choose Actions > Instance State > Stop.
+
+Wait until the instance is fully stopped.
+
+Select the stopped instance.
+
+Go to Actions > Instance Settings > Change Instance Type.
+
+Choose a type with at least 2 vCPUs, like:
+
+t3.medium
+
+Once the type is changed, go to Actions > Instance State > Start.
+
+Wait until it’s running.
+
+after that connect it 
+
+nproc
+
+minikube start --driver=docker
+docker system prune -a
+
+minikube status
+kubectl get nodes
+
+kubectl
+source <(kubectl completion bash)
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+
+kubectl get nodes
+kubectl get pods -n kube-system
+
+nano pod.yaml
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx-pod
+  labels:
+    app: nginx
+spec:
+  containers:
+    - name: nginx-container
+      image: nginx:latest
+      ports:
+        - containerPort: 80
+
+kubectl apply -f pod.yaml
+kubectl get pod
+kubectl describe po nginx-pod
+kubectl delete pod nginx-pod
+kubectl get pod
+
+nano nginx-replicaset.yaml
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nginx-replicaset
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+
+kubectl apply -f nginx-replicaset.yaml
+kubectl get pod
+kubectl delete podnginx-replicaset-bwh6g
+kubectl get pod
+kubectl delete replicaset nginx-replicaset
+kubectl get pod
