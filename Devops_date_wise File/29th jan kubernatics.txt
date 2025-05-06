@@ -1,0 +1,193 @@
+history |grep minikube
+minikube start --driver=docker
+kubectl get nodes
+kubectl get pod
+kubectl get rs
+kubectl apply -f nginx-replicaset.yaml
+kubectl get rs
+kubectl get pod
+kubectl describe rs nginx-replicaset
+kubectl delete rs nginx-replicaset
+
+nano nginx-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+
+
+kubectl get pod
+kubectl get rs
+kubectl apply -f nginx-deployment.yaml
+kubectl get rs
+kubectl get deployment.apps
+kubectl get pod
+kubectl describe deployment.apps nginx-deployment
+kubectl delete deployment.apps nginx-deployment
+kubectl get pod
+kubectl get rs
+kubectl get deploy
+> nginx-deployment.yaml
+nano nginx-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:1.19  # Initial version
+          ports:
+            - containerPort: 80
+
+kubectl apply -f nginx-deployment.yaml
+kubectl get deployments
+kubectl get pod
+kubectl get rs
+kubectl describe deployment nginx-deployment |more
+
+make a new dublicate session of your working session.
+
+kubectl get pod
+kubectl get pod --watch
+Note:- To exit from commant prompt just press ctrl+C
+
+go your original (master instance) instance 
+
+nano nginx-deployment.yaml
+
+just edit your code, replace value 3 to 5 and then save it .
+
+like this, replicas: 5
+
+kubectl apply -f nginx-deployment.yaml
+
+you will see the changes on your deblicate session instane.
+
+At dublicate session
+kubectl get pod --watch
+
+At main instance
+kubectl scale deployment nginx-deployment --replicas=2
+you will see the changes on your deblicate session instane that there 
+are some pod are terminating and some are running completed...
+
+At dublicate session
+kubectl get pod --watch
+
+
+At main instance
+
+kubectl edit deployments.apps nginx-deployment
+
+In the below,relicas value you need to change 2 to 6.
+ (resourceVersion: "4046"
+  uid: 10c84719-5605-418d-9c2b-f041a315de21
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 6)
+
+shift+zz
+
+the output is like this (deployment.apps/nginx-deployment edited)
+
+kubectl get pod
+##you will see there are 6 pod are running.
+
+kubectl describe deployments.apps nginx-deployment |grep -i image
+kubectl set image deployment/nginx-deployment nginx-container=nginx:1.21
+kubectl describe deployments.apps nginx-deployment |grep -i image
+kubectl rollout status deployment/nginx-deployment
+if you are getting this type of error (ubuntu@ip-172-31-3-177:~$ kubectl rollout status deployment/nginx-deployment
+Waiting for deployment "nginx-deployment" rollout to finish: 2 out of 6 new replicas have been updated...
+error: deployment "nginx-deployment" exceeded its progress deadline) kinldy do one think,
+cleanup your minikube by the below command
+minikube ssh
+docker system prune -a
+exit
+kubectl rollout restart deployment nginx-deployment
+kubectl get pods -l app=nginx -w
+kubectl rollout status deployment nginx-deployment
+the output must be like this (deployment "nginx-deployment" successfully rolled out)
+
+kubectl rollout undo deployment/nginx-deployment
+kubectl describe deployments.apps nginx-deployment |grep -i image
+
+
+nano nginx-deployment.yaml
+(CHANGE HERE IMAGE 1.19 TO 1.21)
+containers:
+        - name: nginx-container
+          image: nginx:1.21
+kubectl apply -f nginx-deployment.yaml
+kubectl describe deployments.apps nginx-deployment |grep -i image
+
+kubectl edit deployments.apps nginx-deployment
+(CHANGE HERE IMAGE 1.21 TO 1.19)
+containers:
+        - name: nginx-container
+          image: nginx:1.19
+
+
+kubectl describe deployments.apps nginx-deployment |grep -i image
+
+ls
+
+sudo cp -p nginx-deployment.yaml nginx-deployment.yaml_BKP
+ls -lrt
+nano nginx-deployment.yaml_BKP
+insert a sectence in starting, after open it.
+# Taken BKP on 5th May 2025, Fixing a bug
+
+
+All set !!!!!!!!!
+
+
+
+
+
+
+
+
