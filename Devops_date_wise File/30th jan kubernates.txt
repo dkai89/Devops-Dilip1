@@ -1,0 +1,166 @@
+Firstly made an instance with a name eks_2025 or as you wish.
+I mentioned only specific setting rest of do as same as you do.
+
+Quick Start
+Amazon Linux
+
+
+Instance type  Info | Get advice
+t3.micro
+
+Network settings  
+
+In Firewall (security groups)
+Select existing security group
+
+In Common security groups
+launch-wizard-2
+sg-0ede089cd97d7efeb
+VPC: vpc-01e5729db9a78bc4d
+
+Configure storage  Info
+
+1x 8 GiB standard
+-------------------------------------------
+
+Made a role and attach this role to your instance.
+
+Use case
+Allow an AWS service like EC2, Lambda, or others to perform actions in this account.
+Service or use case
+EC2
+
+Next 
+
+give the Permissions policies
+
+1.AdministratorAccess
+2.AmazonEC2ContainerRegistryPowerUser
+3.AmazonVPCFullAccess
+4.AWSCloudFormationFullAccess
+5.IAMFullAccess
+
+Next
+
+Role name
+Eks_2025_Admin
+
+Create role
+
+
+Attachment process
+
+select your instance 
+click on action 
+click on security 
+Modify IAM role 
+select your role 
+click on Update IAM role
+
+
+connect those instance 
+
+PS1="EKS $"
+aws --version
+
+curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+chmod +x ./kubectl
+sudo mv ./kubectl /usr/local/bin
+kubectl version --short --client
+
+curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+sudo mv /tmp/eksctl /usr/local/bin
+eksctl version
+
+eksctl create cluster --name my-cluster \
+   --region ap-south-1 \
+   --node-type t2.medium
+
+kubectl get nodes
+
+nano mydep.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:1.19  # Initial version
+          ports:
+            - containerPort: 80
+
+kubectl api-versions
+kubectl api-resources
+wget https://k8s.io/examples/controllers/nginx-deployment.yaml
+kubectl apply -f nginx-deployment.yaml
+kubectl get pods
+kubectl get pod -o wide
+kubectl delete pod nginx-deployment-647677fc66-4hdwj (#replcae the id )
+kubectl get pod -o wide
+kubectl delete pod nginx-deployment-647677fc66-p98wj nginx-deployment-647677fc66-wstcr (#replcae the ids)
+kubectl get pod -o wide
+kubectl get nodes
+kubectl get pod -o wide
+kubectl get deploy
+kubectl delete deploy nginx-deployment
+> nginx-deployment.yaml
+vi nginx-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 8
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+
+kubectl apply -f nginx-deployment.yaml
+kubectl get pods
+kubectl get pods --show-labels
+kubectl delete deployment nginx-deployment
+eksctl delete cluster --name my-cluster --region ap-south-1
+
+Wait until it delete.
+
+All Set!!!!!!
+
+
+
+
+
+
+
+
+
