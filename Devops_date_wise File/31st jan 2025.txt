@@ -1,0 +1,250 @@
+eksctl create cluster --name my-cluster \
+   --region ap-south-1 \
+   --node-type t2.medium
+
+PS1="K8S $"
+kubectl get pod
+vi nginx-deployment.yaml #if already exist please detele older then make this new,
+check by ls command.
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+
+kubectl apply -f nginx-deployment.yaml
+kubectl get pod
+kubectl get pod --show-labels
+
+vi nginx-clusterip-svc.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-clusterip-svc
+  labels:
+    app: nginx
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: ClusterIP
+
+kubectl get svc
+kubectl apply -f nginx-clusterip-svc.yaml
+kubectl get svc
+source <(kubectl completion bash)
+echo "source <(kubectl completion bash)" >> ~/.bashrc
+kubectl get po --show-labels
+alias k=kubectl
+k get svc
+kubectl get pod -o wide
+kubectl get svc nginx-clusterip-svc
+kubectl describe svc nginx-clusterip-svc
+kubectl get ep nginx-clusterip-svc
+kubectl describe ep nginx-clusterip-svc
+kubectl get pod -o wide
+kubectl delete pod nginx-deployment-84c5b8588f-8f5ww #replace with yours id
+kubectl get pod -o wide
+kubectl describe ep nginx-clusterip-svc
+kubectl get svc nginx-clusterip-svc
+kubectl get deploy
+kubectl delete deploy nginx-deployment
+k get svc
+k delete svc nginx-clusterip-svc
+k get ep
+
+> nginx-deployment.yaml
+vi nginx-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+
+
+kubectl get pod
+k apply -f nginx-deployment.yaml
+vi nginx-nodeport-svc.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-nodeport-svc
+  labels:
+    app: nginx
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP
+      port: 80           # Port accessible inside the cluster (Service Port)
+      targetPort: 80     # Port exposed by the Pod (container port)
+      nodePort: 30080    # Port on the node (external port, range: 30000-32767)
+  type: NodePort         # Exposes the service externally on each node's IP
+
+k apply -f nginx-nodeport-svc.yaml
+k get svc
+k get svc nginx-nodeport-svc
+k describe svc nginx-nodeport-svc
+k describe ep nginx-nodeport-svc
+
+Go there , Where your cluster has been launchd. select your first cluster and go 
+into your security and edit inbounded rule custom TCP range 30000-32767 0.0.0.0.
+save that rule.
+copy your cluster's ip paste them into your browser with :30080.
+Welcome to nginx wil be showing in your browser. thats it!
+
+
+Example:--> http://54.145.194.210:30080
+
+k get svc
+k get deploy
+kubectl delete deploy nginx-deployment
+kubectl delete svc nginx-nodeport-svc
+
+open the load balancers where your cluster there. #It is places on the left, in the EC2 session scroll down and 
+searching the load balancing in  load balancing section open the load balancers in new tap.
+
+> nginx-deployment.yaml
+vi nginx-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+
+vi nginx-clb-svc.yaml
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-clb-svc
+  labels:
+    app: nginx
+spec:
+  selector:
+    app: nginx
+  ports:
+    - protocol: TCP       # Port exposed externally by the Load Balancer
+      port: 80            # Port accessible via the Load Balancer
+      targetPort: 80      # Port exposed by the NGINX container
+  type: LoadBalancer      # Creates an external AWS Classic Load Balancer (CLB)
+
+k apply -f nginx-deployment.yaml
+k apply -f nginx-clb-svc.yaml
+k get pod
+k get svc
+
+go to your load balancer and copy the DNS name  and paste them in your browser,it is place at details section,
+if it not show first time wait for some time and refresh 
+the page it will also showing welcome nginx page, it is place at details section.
+
+k delete svc nginx-clb-svc
+k delete deploy nginx-deployment
+kubectl get pod
+kubectl get pod -n kube-system 
+kubectl get ns
+k create ns myapp
+k get ns
+k delete ns myapp
+vi myapp-namespace.yaml
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: myapp
+
+k apply -f myapp-namespace.yaml
+
+> nginx-deployment.yaml
+vi nginx-deployment.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: myapp          # Namespace where this Deployment will be created
+  labels:
+    app: nginx
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+        - name: nginx-container
+          image: nginx:latest
+          ports:
+            - containerPort: 80
+
+k apply -f nginx-deployment.yaml
+k get pod
+k get -n myapp pod
+k get po --all-namespaces
+k get all --all-namespaces
+k get sa
+k get sa -n myapp
+
+eksctl delete cluster --name my-cluster --region ap-south-1
+
+ALL SET!!!!!!
