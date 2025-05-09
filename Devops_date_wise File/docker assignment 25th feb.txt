@@ -1,0 +1,106 @@
+Task 1
+
+make an instance with ubuntu os system. and give security group http and 0.0.0.0.
+sudo apt update 
+sudo apt install docker.io -y
+sudo docker pull ubuntu 
+sudo docker images
+sudo docker ps 
+sudo docker run -it -p 80:80 ubuntu
+exit
+sudo docker run -it -d -p 80:80 ubuntu
+sudo docker ps
+sudo docker ps -a
+sudo docker ps
+sudo docker exec -it 28b633343d61 bash (#28b633343d61 this is container id) 
+apt-get update
+apt install apache2 -y
+service apache2 status
+service apache2 start
+service apache2 status
+
+open your browser and check, it wil showing apache default interface (Apache2 Default Page)---> http://204.236.179.252:80
+
+exit
+
+Task 2
+
+sudo docker ps 
+sudo docker commit 28b633343d61 new-task
+sudo docker images
+sudo docker run -itd -p 81:80 new-task 
+sudo docker exec -it fc303e45da88f4125c90f2113b0225167eaf2a96a8645afca88e6b23a1e483e7 bash 
+#(fc303e45da88f4125c90f2113b0225167eaf2a96a8645afca88e6b23a1e483e7)
+this is the above command output)
+service apache2 start
+service apache2 status
+open your browser and check, it wil showing apache default interface (Apache2 Default Page)---> http://204.236.179.252:81
+exit
+sudo docker login
+dilipdevops1982
+password are taking from docker file. which is in your desktop folder.the file name docker.
+Note: when your paste the password on you instance terminal. it will invisible. paste then enter login successed
+sudo docker images
+sudo docker tag new-task dilipdevops1982/new-task
+sudo docker images 
+sudo docker push dilipdevops1982/new-task
+now check whether it is pushed or not on your docker hub account. The new repo is created name as dilipdevops1982/new-task.
+
+Task3
+----------------------------------------------------------------
+now create new machine with ubuntu os system
+connect those new machine
+sudo apt install docker.io -y
+sudo docker pull dilipdevops1982/new-task
+sudo docker images
+sudo docker run -itd -p 80:80 dilipdevops1982/new-task
+sudo docker ps
+sudo docker exec -it 851563ef81e9 bash 
+service apache2 start
+service apache2 status
+Now check on your browser whether the apche2 default is showing or not. if showing thats ok.------>http://3.101.144.69:80
+exit
+----------------------------
+
+Task4
+On Original instance
+ 
+sudo nano Dockerfile
+
+FROM ubuntu
+RUN apt-get update
+RUN apt install apache2 -y
+ENTRYPOINT apachectl -D FOREGROUND
+
+sudo docker build . -t doc 
+sudo docker images
+sudo docker run -itd -p 99:80 doc
+Now check on your browser whether the apche2 default is showing or not. if showing thats ok. ----->http://3.101.144.69:99
+
+Task5
+
+sudo nano index.html
+Hello World
+
+sudo nano Dockerfile
+
+FROM ubuntu
+RUN apt-get update
+RUN apt install apache2 -y
+ADD index.html /var/www/html/
+ENTRYPOINT apachectl -D FOREGROUND
+
+sudo docker build . -t work-5
+sudo docker run -itd -p 101:80 work-5
+curl 3.101.144.69:101
+sudo docker run -itd -p 120:80 work-5
+
+Now check on your browser whether the Hello World is showing or not. if showing thats ok. ----->http://3.101.144.69:120
+
+sudo nano index.html
+New Webpage
+sudo docker build -t t1 .
+sudo docker run -itd -p 90:80 t1
+Now check on your browser whether the New Webpage is showing or not. if showing thats ok. ----->http://3.101.144.69:90
+
+
