@@ -1,0 +1,85 @@
+firstly clean up your system if you work with used system.
+ls
+rm filenames filesname 
+yes
+yes
+
+ls
+if everything is clean then you can start to made this case study
+project
+
+mkdir project-directory
+cd project-directory
+sudo nano Dockerfile
+
+# Use Ubuntu as base image
+FROM ubuntu:20.04
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Update packages and install Apache
+RUN apt-get update && \
+    apt-get install -y apache2 && \
+    apt-get clean
+
+# Copy your code to Apache's web directory
+COPY . /var/www/html/
+
+# Expose Apache port
+EXPOSE 80
+
+# Start Apache in the foreground
+CMD ["/usr/sbin/apache2ctl", "-D", "FOREGROUND"]
+
+
+sudo nano index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dockerized Apache Server</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            text-align: center;
+            padding-top: 50px;
+        }
+        .container {
+            background-color: white;
+            display: inline-block;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to Your Dockerized Apache Server!</h1>
+        <p>This page is being served from an Apache server running inside a Docker container.</p>
+        <p>You can replace this content with your actual project files.</p>
+    </div>
+</body>
+</html>
+
+
+sudo docker build . -t case-study
+sudo docker run -d -p 8080:80 case-study
+Now you can check on your browser whether your code is working properly or not --->204.236.179.252:8080
+sudo docker login
+sudo docker tag case-study dilipdevops1982/case-study:latest
+sudo docker push dilipdevops1982/case-study:latest
+
+
+Thats All!!!
+
+
