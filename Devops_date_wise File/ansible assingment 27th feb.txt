@@ -1,0 +1,341 @@
+Task1
+
+make 3 instances ubuntu os system ansible-m ansible-s1 ansibles-s2 all all traffice 0.0.0.0
+update all 3 machine 
+sudo apt update
+
+On master instance
+sudo nano a.sh
+
+sudo apt update
+sudo apt install software-properties-common
+sudo add-apt-repository --yes --update ppa:ansible/ansible
+sudo apt install ansible
+bash a.sh 
+y
+y
+cd .ssh
+ls
+ssh-keygen
+enter
+enter
+enter
+ls
+sudo cat id_ed25519.pub
+copy the output and over the other slave instance
+
+On Slave-01
+
+cd .ssh
+ls
+sudo nano authorized_keys
+paste master instance key here.
+
+On Slave-02
+
+cd .ssh
+ls
+sudo nano authorized_keys
+paste master instance key here.
+
+On master machine
+
+cd ..
+cd /etc/ansible/
+ls
+sudo nano hosts (#in this file with need to mentioned the all slave instances private ips)
+[slave-1]
+172.31.10.95 
+[slave-2]
+172.31.12.142 
+
+ansible -m ping all
+yes
+yes
+yes
+yes
+
+sudo nano playbook1.yaml
+---
+- name: Installing jave on slave 1 
+  hosts: slave-1
+  become: true 
+  tasks:
+    - name: installing java
+      apt: name=openjdk-17-jdk state=latest
+
+- name: Installing jave on slave 2 
+  hosts: slave-2
+  become: true 
+  tasks:
+    - name: installing mysql
+      apt: name=mysql-server state=latest
+
+ansible-playbook playbook1.yaml --syntax-check
+ansible-playbook playbook1.yaml
+
+Now go to your slave1 check java 
+java --version
+now go to your slva2 check mysql
+mysql --version
+
+Task2
+
+On master instance
+
+sudo nano script1.sh
+#!/bin/bash
+echo "this text has been added by customer script" > /tmp/1.txt
+
+sudo chmod +x script1.sh
+ls -l script1.sh
+
+sudo nano playbook2.yaml
+---
+- name: executing script file inside the slave server
+  hosts: slave-1, slave-2
+  become: true
+  tasks:
+    - name: executing script file
+      script: script1.sh
+ansible-playbook playbook2.yaml --syntax-check
+ansible-playbook playbook2.yaml
+
+Now go to your slave1
+cd /tmp
+ls
+sudo cat 1.txt
+
+
+Now go to your slave2
+cd /tmp
+ls
+sudo cat 1.txt
+
+Task3
+
+On master instance
+pwd
+output  ---> /etc/ansible
+cd roles
+sudo ansible-galaxy init apache-role
+ls
+cd apache-role
+ls
+cd tasks
+sudo nano install.yaml
+---
+ - name: installing apache2
+   apt: name=apache2 state=latest
+
+sudo nano main.yml
+---
+# tasks file for apache-role
+ - include_tasks: install.yaml
+
+cd ../../..
+pwd 
+output  ---> /etc/ansible
+
+sudo nano playbook3.yaml
+---
+ - name: executing roles inside slave1
+   hosts: slave-1
+   become: true 
+   roles:
+     - apache-role 
+
+ansible-playbook playbook3.yaml
+
+cd roles
+ls
+sudo ansible-galaxy init nginx-role
+ls
+cd nginx-role
+ls
+cd tasks
+ls
+
+sudo nano installnginx.yaml
+---
+ - name: installing nginx
+   apt: name=nginx state=present
+
+sudo nano main.yml
+---
+# tasks file for nginx-role
+- include_tasks: installnginx.yaml
+
+cd ../../..
+
+sudo nano playbook3.yaml
+
+---
+ - name: executing roles inside slave1
+   hosts: slave-1
+   become: true
+   roles:
+     - apache-role
+
+ - name: executing roles inside slave2
+   hosts: slave-2
+   become: true
+   roles:
+     - nginx-role
+
+ansible-playbook playbook3.yaml
+slave 1 (apache2 defautl page on browser, publice ips)
+http://52.53.251.99:80 
+slave 2 (nginx defautl page on browser, publice ips)
+http://54.177.85.165:80
+
+pwd 
+output  ---> /etc/ansible
+
+cd roles
+ls
+cd nginx-role
+ls
+cd files
+sudo nano index.html
+Hello World
+
+cd ..
+cd tasks
+ls
+
+sudo nano copy.yaml
+---
+ - name: replacing nginx dashboard
+   copy: src=/etc/ansible/roles/nginx-role/files/index.html dest=/var/www/html/
+
+sudo nano main.yml
+
+---
+# tasks file for nginx-role
+- include_tasks: copy.yaml
+
+cd ../../..
+
+sudo nano playbook4.yaml
+---
+ - name: replacing nginx dashboard
+   hosts: slave-2
+   become: true
+   roles: 
+    - nginx-role
+ansible-playbook playbook4.yaml
+
+slave1 public ip with code 80, go to the browser and check whether it change or not "Hello world"
+http://54.177.85.165:80
+
+now create new machine ubuntu
+
+Amazon Machine Image (AMI)
+Ubuntu Sever 22.4 lts(hvm),ssd volume type
+Number of instances
+2
+
+connect those instance and update both the machines
+sudo apt update
+
+go to master instance 
+
+pwd
+output /home/ubuntu
+cd .ssh
+ls
+sudo cat id_ed25519.pub
+copy the output and over the other slave instance
+
+On Slave-03
+
+cd .ssh
+ls
+sudo nano authorized_keys
+paste master instance key here.
+
+On Slave-04
+
+cd .ssh
+ls
+sudo nano authorized_keys
+paste master instance key here.
+
+go to master instance 
+
+cd ..
+cd /etc/ansible
+ls
+sudo nano hosts
+
+[test]
+172.31.10.95
+172.31.0.81 # add your slave3 private ip
+[prod] 
+172.31.12.142
+172.31.14.81 # add your slave4 private ip
+
+cd roles
+sudo ansible-galaxy init java
+sudo ansible-galaxy init mysql
+cd java
+ls
+cd tasks
+sudo nano installjava.yaml
+
+---
+- name: installing java
+  apt:
+    name: openjdk-17-jdk
+    state: latest
+    update_cache: yes
+
+sudo nano main.yml
+
+---
+# tasks file for java
+- include_tasks: installjava.yaml
+
+cd ../..
+
+cd mysql
+ls
+cd tasks
+
+sudo nano mysqlinstall.yaml
+---
+ - name: installing mysql
+   apt: name=mysql-server state=present
+
+sudo nano main.yml
+---
+# tasks file for mysql
+- include_tasks: mysqlinstall.yaml
+
+cd ../../..
+
+sudo nano playbook5.yaml
+---
+ - name: executing java role inside my test nodes
+   hosts: test
+   become: true
+   roles:
+     - java
+
+ - name: executing mysql role inside my prod nodes
+   hosts: prod 
+   become: true
+   roles:
+     -  mysql
+
+ansible -m ping all
+yes
+
+ansible-playbook playbook5.yaml
+
+now go to your slave3 and 4 check java --version and mysql --version
+
+
+thats it!!!
+
