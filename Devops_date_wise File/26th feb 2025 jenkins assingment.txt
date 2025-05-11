@@ -1,0 +1,303 @@
+Task 1
+
+make 2 instances with ubuntu os system one name is jankins-m and another jankins-s1
+connect those instances
+On both the machine one by one command type.
+
+sudo apt-get update
+sudo apt install openjdk-17-jdk -y
+java --version
+
+On master machine
+sudo nano a.sh
+
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get update
+sudo apt-get install jenkins
+
+bash a.sh
+y
+
+jenkins --version
+
+go to the security group and set inbounded rule range 8080 and 0.0.0.0
+copy the Public IP of the perticuler master machine paste on the browser with the code
+8080
+
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+
+copy the output paste on the Authonticator password
+
+
+install suggested plugins
+
+fill the detail
+admin
+admin
+admin
+dk 
+kumardilip5694@gmail.com
+
+save and continue
+copy the address and save it for further use 
+save and finish 
+your jenkins dashboard is ready to go.
+
+manage jenkins
+Nodes
+new node 
+Node name slave1
+select permanent agent 
+create
+
+Name
+slave-1
+
+Remote root directory
+/home/ubuntu/jenkins
+
+Labels
+slave-1
+
+save
+
+Dashboard
+manage jenkins
+Nodes
+click on slave-1
+Configure
+
+
+Launch method
+
+Host
+private ip of your of your slave instance
+
+Credentials
+click on Add -->jenkins
+Kind-->SSH username with private key
+username-->ubuntu
+private key select enter directly 
+click on add 
+copy the key pair data of instance
+pasted over the key section after that click on add
+Credentials
+ubuntu 
+Host Key Verification Strategy
+Non verifying Verification Strategy
+save
+
+Dashboard
+manage jenkins
+nodes
+
+
+
+go to Dashboard
+New item 
+enter an item name 
+task-1
+freestyle project
+ok
+
+Description
+This is my task-1
+
+select GitHub project
+https://github.com/dkai89/developer.git
+select Restrict where this project can be run
+Label Expression
+slave-1
+
+Source Code Management
+select Git
+Repository URL
+https://github.com/dkai89/developer.git
+Branches to build
+Branch Specifier (blank for 'any')
+*/main
+
+Triggers
+select GitHub hook trigger for GITScm polling
+
+
+go to your github account open your repo (https://github.com/dkai89/developer.git)
+click on settings
+click on Webhooks
+add Webhooks
+enter the password Sonakshi@3005
+Payload URL *
+http://43.204.107.30:8080/github-webhook/
+add webhook
+go to your jenkins save that job then click on build now 
+
+go to slave instance 
+ls
+cd jenkins
+cd workspace
+ls
+cd task-1
+ls
+now change on the github repo 
+lets create a new 
+new2.txt
+Hello world 
+commit those change 
+jenkins work automatically go to your jenkins see things has been done 
+go to instance slave just type ls you will see the new file wil be added.
+
+
+Task 2
+
+create a new branch with the name as test select the test branch 
+add file as name sample.txt
+
+create new machine with ubuntu os system  as prod
+connect those machine
+
+sudo apt-get update
+sudo apt install openjdk-17-jdk -y
+java --version
+
+go the jenkins dashboard create new nodes
+with name as prod
+
+manage jenkins
+Nodes
+new node 
+Node name prod
+select permanent agent 
+create
+
+Name
+prod
+
+Remote root directory
+/home/ubuntu/jenkins
+
+Labels
+prod
+
+Launch method
+
+Host
+private ip of your of your prod instance
+
+Credentials
+ubuntu 
+Host Key Verification Strategy
+Non verifying Verification Strategy
+save
+
+Dashboard
+manage jenkins
+nodes
+
+save
+
+
+go to Dashboard
+New item 
+enter an item name 
+push-to-test
+freestyle project
+ok
+
+Description
+This is my task-2
+
+select GitHub project
+https://github.com/dkai89/developer.git
+select Restrict where this project can be run
+Label Expression
+prod  
+
+Source Code Management
+select Git
+Repository URL
+https://github.com/dkai89/developer.git
+Branches to build
+Branch Specifier (blank for 'any')
+*/test
+
+Triggers
+select GitHub hook trigger for GITScm polling
+save 
+build now 
+
+go to your prod instance 
+
+check is data fetch or not 
+ls 
+cd jenkins
+ls
+cd workspace
+ls
+cd push-to-test
+ls
+go to your github and create a new file in test branch by jenkins it will 
+automatically pulled to your instance.
+now go to your instance just type ls to check 
+
+go to your jenkins create new item
+
+go to Dashboard
+New item 
+enter an item name 
+push-to-prod
+freestyle project
+ok
+
+Description
+This is my task-21
+
+select GitHub project
+https://github.com/dkai89/developer.git
+select Restrict where this project can be run
+Label Expression
+prod  
+
+Source Code Management
+select Git
+Repository URL
+https://github.com/dkai89/developer.git
+Branches to build
+Branch Specifier (blank for 'any')
+*/main
+
+Triggers
+select GitHub hook trigger for GITScm polling
+save 
+build now 
+
+refresh your prod instance 
+
+go to your prod instance 
+
+check is data fetch or not 
+ls 
+cd jenkins
+ls
+cd workspace
+ls
+cd push-to-prod
+ls
+
+go to your github and create a new file in main branch by jenkins it will 
+automatically pulled to your instance.
+now go to your instance just type ls to check 
+
+jenkins dashbaord 
+click on push-to-test job 
+click on configure 
+
+Post-build Actions
+Add post-build action
+Build other projects
+push-to-prod
+save
+build now
