@@ -1,0 +1,191 @@
+make 2 instances and install and java and ansible 
+Name:-j-m
+System os:- ubuntu
+Inbound Security Group Rules
+All Traffic 00000
+custom tcp port rang:-8080 source 00000
+ssh source 00000
+
+Configure storage  Info
+8 GiB gp3
+Number of instances
+1
+Launch instance
+
+Name:-j-s
+System os:- ubuntu
+Inbound Security Group Rules
+All Traffic 00000
+custom tcp port rang:-8080 source 00000
+ssh source 00000
+
+Configure storage  Info
+8 GiB gp3
+Number of instances
+1
+Launch instance
+
+On Both instances 
+
+sudo apt update
+sudo apt install openjdk-17-jdk -y
+java --version
+
+On master instance 
+
+sudo wget -O /etc/apt/keyrings/jenkins-keyring.asc \
+  https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+echo "deb [signed-by=/etc/apt/keyrings/jenkins-keyring.asc]" \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get update
+sudo apt-get install jenkins
+
+y
+
+http://16.171.36.49:8080/
+
+On master instance
+
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+copy the password and them on Administrator password...
+
+click on install suggested plugins
+
+username : admin
+password : admin
+confirm password : admin
+full name : admin
+email admin@admin.com 
+
+click on save and continue
+click on save and finish 
+click on start using jenkins
+
+manage jenkins 
+new nodes
+click on new nodes
+
+Node name :j-s
+select this Permanent Agent
+click on create
+
+Remote root directory
+/home/ubuntu/jenkins
+
+Launch method
+Launch agent via ssh
+host : Private ip of your slave instance
+Credentials ->add->jenkins
+kind : SSH Username with private key 
+username : ubuntu
+Private Key check enter directly
+click on add 
+copy your pem key data and past here then click on add
+credentials : ubuntu 
+
+Host Key Verification Strategy
+Non Verifying Verification Strategy 
+save it 
+
+
+On slave instance 
+
+# Download and install nvm:
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
+
+# in lieu of restarting the shell
+\. "$HOME/.nvm/nvm.sh"
+
+# Download and install Node.js:
+nvm install 22
+
+# Verify the Node.js version:
+node -v # Should print "v22.15.1".
+nvm current # Should print "v22.15.1".
+
+# Verify npm version:
+npm -v # Should print "10.9.2".
+
+
+copy all the above command paste them on slave instance.
+
+manage jenkins--> plugins--->available plugins
+
+snyk security
+nodejs
+
+
+manage jenkins--.>tools
+scroll down 
+Snyk installations
+Click “Add Snyk”
+
+Give it a name:- Snyk CLI
+save
+
+Note :- when your make a job in Snyk installation, the Snyk CLI shown automatically
+
+new item 
+job1
+Freestyle project
+ok
+
+Restrict where this project can be run
+Label Expression
+j-s
+
+Source Code Management
+Git
+Repositories
+Repositories URL
+https://github.com/Sameer-8080/node-js-getting-started.git 
+Branch Specifier (blank for 'any')
+main
+
+Build Steps
+add build steps 
+Invoke snyk Security task
+select this:---> Let the build continue
+Snyk API token-->add-->jenkins
+kind -->Snyk API Token
+api token --> go to your snyk website copy the api token paste here 
+click add 
+credentials 
+select the seved credendtials
+save
+click on build now 
+go to your slave jenkins 
+cd jenkins/workspace 
+ls
+job1
+ls
+some files are showing 
+
+go to your snyk website a live snapshort uploaded on this project section
+click on project 
+click Sameer-8080/node-js-getting-started 
+then click node-js-getting-started 
+you will see the detail of it .
+
+
+so That it !!!!!
+
+
+
+EC2 Instance Terminate Karna 
+
+
+✅ 2. Snyk Dashboard Se Snapshot & Project Delete Karna
+
+Go to: https://app.snyk.io/org/aws29157/projects
+
+Locate your project (Sameer-8080/node-js-getting-started)
+
+Click the 3 dots (•••) 
+
+Click “delete”
+
+taget name :- Sameer-8080/node-js-getting-started
+click on delete
+
